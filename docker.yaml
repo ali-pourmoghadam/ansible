@@ -1,11 +1,15 @@
 - name: docker installation
-  hosts: localhost
+  hosts: all
   vars:
     container_count: 4
     default_container_name: docker
     default_container_image: ubuntu
     default_container_command: sleep 1
   tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: yes
     - name: install aptitude
       apt:
         name: aptitude
@@ -42,7 +46,7 @@
     - name: active dokcer on ubuntu
       service:
         name: docker 
-        state: start
+        state: started
   
     - name: Verify Docker service status
       command: systemctl is-active docker
