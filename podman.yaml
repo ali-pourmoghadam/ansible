@@ -1,0 +1,31 @@
+---
+- name: Install Podman on Ubuntu
+  hosts: localhost
+  become: true
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies for Podman
+      apt:
+        name:
+          - curl
+          - ca-certificates
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: Install Podman
+      apt:
+        name: podman
+        state: present
+
+    - name: Verify Podman installation
+      command: podman --version
+      register: podman_version
+
+    - name: Output Podman version
+      debug:
+        msg: "Podman version: {{ podman_version.stdout }}"
