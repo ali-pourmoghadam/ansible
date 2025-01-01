@@ -1,0 +1,26 @@
+- name: Bootstrap servers for root SSH access
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  tasks:
+    - name: Copy public key from Ansible server to the normal user
+      copy:
+        src: ~/.ssh/id_ed25519.pub
+        dest: /home/{{ ansible_user }}/.ssh/ansible_root_key.pub
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+    - name: Ensure the .ssh directory exists for the user
+      file:
+        path: /home/{{ ansible_user }}/.ssh
+        state: directory
+        mode: '0700'
+    - name: Copy the public key directly to root's authorized_keys
+      copy:
+        src: /home/{{ ansible_user }}/.ssh/ansible_root_key.pub
+        dest: /root/.ssh/authorized_keys
+        owner: root
+        group: root
+        mode: '0600'
+        remote_src: yes

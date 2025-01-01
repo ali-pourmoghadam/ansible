@@ -1,0 +1,29 @@
+---
+- name: Add and disable all other APT repositories
+  hosts: all
+  become: yes
+  tasks:
+    - name: Comment out all 'deb' lines in /etc/apt/sources.list
+      command: "sed -i 's/^deb /#deb /' /etc/apt/sources.list"
+      ignore_errors: yes  # Ignore errors if sources.list doesn't exist
+
+    - name: Comment out all 'deb' lines in files inside /etc/apt/sources.list.d/
+      find:
+        paths: /etc/apt/sources.list.d
+        patterns: "*.list"
+      register: apt_files
+
+    - name: Comment out all 'deb' lines in the repository files in /etc/apt/sources.list.d/
+      command: "sed -i 's/^deb /#deb /' {{ item.path }}"
+      loop: "{{ apt_files.files }}"
+
+    - name: Ensure the new APT repository is added
+      apt_repository:
+        repo: "deb http://192.168.66.171:8081/repository/apt-proxy/ jammy main restricted universe"
+        state: present
+        filename: "apt-custom-repo"
+
+    - name: Run apt update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600

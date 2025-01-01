@@ -1,0 +1,12 @@
+docker run --restart=always -d -p 8081:8081 \
+--volume nexus-data:/nexus-data \
+sonatype/nexus3
+
+docker run --restart=always -d -p 5000:5000 \
+--volume /home/ansible/installation/kubespray/contrib/offline/registry-data:/var/lib/registry \
+--name registry  registry:latest
+
+docker run   --restart=always -d -p  80:80 \
+--volume /home/ansible/installation/kubespray/contrib/offline/offline-files:/usr/share/nginx/html/download \
+--volume /home/ansible/installation/kubespray/contrib/offline/nginx.conf:/etc/nginx/nginx.conf \
+--name nginx nginx:alpine
